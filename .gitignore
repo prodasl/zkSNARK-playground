@@ -1,6 +1,14 @@
 # Logs
 logs
 *.log
+*.r1cs
+*.sym
+*.wasm
+*.js
+*.zkey
+*.ptau
+*.wtns
+*proof.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
