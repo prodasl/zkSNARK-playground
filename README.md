@@ -60,7 +60,7 @@ The lifecycle of a zkSNARK in practice is essentially this:
 5. Using your proving circuit from part 3 and your magic numbers created from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
 6. Using the verifying proof and the same magic numbers from part 4 that you used in part 5, verify the validity of the proof that was generated in part 5. 
 
-> **Note**
+> **Note**<br>
 I encourage you to look further into R1CS and QAPs and the general mathematics of zkSNARKS. However, everything under the hood in zkSNARKs relies on algebraic manipulations of elliptic curves defined over finite fields. Unless you have a serious background in Galois theory and algebraic curves, you are unlikely to come up with your own novel (and secure) proof system for zkSNARKs. 
 
 ## Part 1: Setting up your Docker environment
