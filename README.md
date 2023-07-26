@@ -84,23 +84,44 @@ in the working directory.
 
 Now you're all set up to start using Circom and snarkjs.
 
-### Multiplier2
+## Part 2: Compile a simple multiplication circuit
+
+We're going to start with a boringly simple problem that multiplies two numbers together and proves we did it right. If you wanted to do something like this in practice, you'd probably want to publish a hashed commitment of the two numbers your are multiplying together so that your proof is a little more usefull. That way the prover would know you multiplied the numbers that you committed to at a certain time stamp. But this first example is just to go through the motions. 
+
+In order to compile the circuit, we need:
+1. an input file in json format
+2. the circom compiler (already built for you in the container environment)
 
 ```
-# compile the circuit and generate a witness file
 cd /examples/multiplier2
 circom multiplier2.circom --r1cs --wasm --sym --c
 node ./multiplier2_js/generate_witness.js ./multiplier2_js/multiplier2.wasm input.json witness.wtns
+```
 
-# Phase 1 setup ceremony: happens only once ever
+This produced our witness file (secret inputs), and a `.wasm` file that can run in the browser. The `.wasm` file is like our byte code we generate 
+when we compile Solidity smart contracts. It needs to live somewhere accessible to anyone who wants to be a verifier. Changing the input file doesn't 
+change the circuit defined in the `.wasm` file. 
+
+## Part 3: Perform the trusted setup ceremony
+
+Now that your circuit is compiled, its time to generate the common reference string (aka, magic numbers). The first phase is often called the Powers of Tau and is only ever done once; it has no dependency on the computational graph of your circuit. 
+
+```
 snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
 snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
+```
 
-# Phase 2 setup ceremony: happens once per circuit
+The second phase of depends on your specific circuit (not the input, but the computational graph). The quantity of magic numbers required to construct
+a zkSNARK is proportional to the size of your circuit, so if you change the computation, you need to redo phase 2 of the trusted setup. 
+
+```
 snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau -v
 snarkjs groth16 setup multiplier2.r1cs pot12_final.ptau multiplier2_0000.zkey
 snarkjs zkey contribute multiplier2_0000.zkey multiplier2_0001.zkey --name="1st Contributor Name" -v
 snarkjs zkey export verificationkey multiplier2_0001.zkey verification_key.json
+```
+
+### Part 4: Generate a Proof
 
 # Generate Non-Interactive Proof
 snarkjs groth16 prove multiplier2_0001.zkey witness.wtns proof.json public.json
