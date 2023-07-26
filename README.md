@@ -77,9 +77,9 @@ Next, fire up an interactive environment with this new image:
 ```
 docker run -it --rm --entrypoint bash -v /home/todd/code/circom-playground/:/root/circuits circom
 ```
-> **Note**<br>
+> **Warning**<br>
 The above command uses the `-v` flag to mount the repository into the container environment, be sure to change
-`/home/todd/code/circome-playground` to the correct path on your mahcine.
+`/home/todd/code/circom-playground` to the correct path on your machine or you won't see the files you need in the working directory.
 
 Now you're all set up to start using Circom and snarkjs.
 
