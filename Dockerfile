@@ -11,6 +11,7 @@ RUN apt update \
 WORKDIR /root
 
 RUN git clone https://github.com/iden3/circom.git
+RUN git clone https://github.com/iden3/circomlib.git
 
 WORKDIR /root/circom
 
