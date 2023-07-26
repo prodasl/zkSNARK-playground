@@ -77,7 +77,7 @@ Next, fire up an interactive environment with this new image:
 ```
 docker run -it --rm --entrypoint bash -v /home/todd/code/circom-playground/:/root/circuits circom
 ```
-> **Note**
+> **Note**<br>
 The above command uses the `-v` flag to mount the repository into the container environment, be sure to change
 `/home/todd/code/circome-playground` to the correct path on your mahcine.
 
