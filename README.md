@@ -32,7 +32,7 @@ you can start doing anything, you have to choose a predictive techique to levera
 Typically, you want to choose the simplist modeling method that is capable of attaining sufficient accuracy for your application.
 
 You face a similar choice in zkp land as well. You need to choose an appropriate zkp *type* that satisfies the information constraints and requirements
-of your problem. Different zkp types use completely different underlying mathematical formalisms to ensure the three properties discussed in ##Preliminaries-and-context are achieved. Some popular and actively researched zkp types include:
+of your problem. Different zkp types use completely different underlying mathematical formalisms to ensure the three properties discussed in [preliminaries and context](#preliminaries-and-context) are achieved. Some popular and actively researched zkp types include:
 
 - Bulletproofs 
     - a zero-knowledge argument of knowledge that proves that a secret value lies within a given range 
@@ -49,18 +49,18 @@ of your problem. Different zkp types use completely different underlying mathema
 
 This crash course will specifically focus on zkSNARKs, and more specifically zkSNARKS that leverage the *Groth16* proof system. There are
 other proof systems with funny sounding names (like PLONK), but the Circom library we will be using is based on elliptic curve pairing theorems
-as developed in the Groth16 paper. 
+as developed in the [Groth16 paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6d0e4b4d47afea119770b0386c94bcf277881a86). 
 
 The lifecycle of a zkSNARK in practice is essentially this:
 
-1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree)
+1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the literature, a witness is just a fancy name for the information you want to keep private). 
 2. Write this computation as an algebraic circuit (we'll use circom language to do this)
 3. Compile the circuit into a Rank 1 Constrain System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit
-4. Perform what is called a **trused setup ceremony** which itself has 2 phases, one of which is circuit dependend (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this)
+4. Perform what is called a **trused setup ceremony** which itself has 2 phases, one of which is circuit dependent (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this), to produce some *magic numbers* that are referred to in the literature as a *common reference string*. 
 5. Using your proving circuit from part 3 and your magic numbers created from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
 6. Using the verifying proof and the same magic numbers from part 4 that you used in part 5, verify the validity of the proof that was generated in part 5. 
 
-**Note**
+> **Note**
 I encourage you to look further into R1CS and QAPs and the general mathematics of zkSNARKS. However, everything under the hood in zkSNARKs relies on algebraic manipulations of elliptic curves defined over finite fields. Unless you have a serious background in Galois theory and algebraic curves, you are unlikely to come up with your own novel (and secure) proof system for zkSNARKs. 
 
 ## Part 1: Setting up your Docker environment
@@ -77,8 +77,8 @@ Next, fire up an interactive environment with this new image:
 ```
 docker run -it --rm --entrypoint bash -v /home/todd/code/circom-playground/:/root/circuits circom
 ```
-**Note**
-the above command uses the `-v` flage to mount the repository into the container environment, be sure to change
+> **Note**
+The above command uses the `-v` flag to mount the repository into the container environment, be sure to change
 `/home/todd/code/circome-playground` to the correct path on your mahcine.
 
 Now you're all set up to start using Circom and snarkjs.
