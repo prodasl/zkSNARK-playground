@@ -15,7 +15,7 @@ authentication, then the end user is the prover and the backend of your app is t
 Zero-knowledge proofs (much like the field of machine learning), are not a monolithic concept or single algorithm where one method works
 for all use cases. ZKP's form a heterogeneous technology landscape with a large variety of algorithmic techniques and mathematical formalisms 
 that each have different tradeoffs with some techniques being more appropriate than others for particular situations. Some zkps are interactive, 
-others non-interactive (you'll see them referred to as NIZK), others have the property of succinctness (mean proof sizes are small relative the 
+others non-interactive (you'll see them referred to as NIZK), others have the property of succinctness (meaning proof sizes are small relative the 
 calculation your are proving a statement about), some are specifically designed for proving particular statements, etc. It can be difficult 
 to know what zkp mechanism to use and when. 
 
