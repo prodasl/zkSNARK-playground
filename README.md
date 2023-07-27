@@ -2,7 +2,7 @@
 
 I'm making this repo to serve as a teaching aid for a crash course to practical usage of zero-knowledge proofs for developers in a hurry. 
 Specifically, I'm basing the tutorial off of the [circom](https://github.com/iden3/circom) zkp circuit compiler and the 
-[zksnark](https://github.com/iden3/snarkjs) proving/verifying library. The repository comes with a 
+[snarkjs](https://github.com/iden3/snarkjs) proving/verifying library. The repository comes with a 
 Dockerfile that is fully self-contained with all dependencies necessary to perform the numerical experiments discussed here.  
 
 ## Preliminaries and Context
