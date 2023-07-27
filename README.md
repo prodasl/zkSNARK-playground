@@ -64,9 +64,8 @@ The lifecycle of a zkSNARK app in practice is something like this:
 2. Write this computation as an algebraic circuit (we'll use circom language to do this).
 3. Compile the circuit into a Rank 1 Constraint System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit.
 4. Perform what is called a **trused setup ceremony** to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to contruct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using has 2 phases to the trusted setup, one phase that is completely independent of the circuit you will be using, and another phase that depends on the circuit you develped and compiled in parts 1-3 earlier. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string, so the trusted setup ceremony is a big deal for zkSTARK applications. 
-5. Using your proving circuit from part 3 and your magic numbers created from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
-6. Using the verifying proof and the same magic numbers from part 4 that you used in part 5, verify the validity of the proof that was generated in 
-part 5.
+5. Using your proving circuit from part 3 and your circuit's prooving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
+6. Using the verifying proof and the circuit's verification key from part 4 that you used in part 5, verify the validity of the proof that was generated in part 5.
 
 Technically the trusted setup ceremony could be done first (at least phase 1 could), and in fact, you can pull the Powers of Tau artifacts from 
 previous successfull ceremonies from online sources like https://www.trusted-setup-pse.org. Just make sure the artifacts are compatible with 
