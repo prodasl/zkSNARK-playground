@@ -14,9 +14,10 @@ authentication, then the end user is the prover and the backend of your app is t
 
 Zero-knowledge proofs (much like the field of machine learning), are not a monolithic concept or single algorithm where one method works
 for all use cases. ZKP's form a heterogeneous technology landscape with a large variety of algorithmic techniques and mathematical formalisms 
-that each have different tradeoffs with some techniques being more appropriate than others for particular situations. Some zkps are interative, 
-others non-interactive, others have the property of succinctness, some are specifically for proving specific statements, etc. It can be 
-difficult to know what to use and when. 
+that each have different tradeoffs with some techniques being more appropriate than others for particular situations. Some zkps are interactive, 
+others non-interactive (you'll see them referred to as NIZK), others have the property of succinctness (mean proof sizes are small relative the 
+calculation your are proving a statement about), some are specifically designed for proving particular statements, etc. It can be difficult 
+to know what zkp mechanism to use and when. 
 
 Regardless of the particular zkp you end up using in your application, all (useful) zkps must have the following properties:
 
@@ -24,16 +25,17 @@ Regardless of the particular zkp you end up using in your application, all (usef
 2. *Soundness* - If a statement is false, a malicous prover cannot trick a verifier into thinking it is true
 3. *Zero-Knowledge* - a verifier learns nothing other than the truthyness of a statement (this is the hard part to accomplish)
 
-These concepts can also be described with precise mathematical statements, but this is a crash course for impatient devs so we won't get into that here. 
+These properties can also be articulated as precise mathematical statements, but this is a crash course for impatient devs so we won't get 
+into that here. 
 
 ### ZKP Types
 
 I'll describe zkp types with a hopefully useful analogy. In the field of machine learning or artificial intelligence, before
 you can start doing anything, you have to choose a predictive techique to leverage, i.e. linear regression, boosted trees, deep neural nets, etc. 
-Typically, you want to choose the simplist modeling method that is capable of attaining sufficient accuracy for your application.
+Typically, you want to choose the simplist modeling method that is capable of attaining sufficient predictive accuracy for your application.
 
 You face a similar choice in zkp land as well. You need to choose an appropriate zkp *type* that satisfies the information constraints and requirements
-of your problem. Different zkp types use completely different underlying mathematical formalisms to ensure the three properties discussed in [preliminaries and context](#preliminaries-and-context) are achieved. Some popular and actively researched zkp types include:
+of your problem. Different zkp types use completely different underlying mathematical formalisms to ensure the three properties discussed in [preliminaries and context](#preliminaries-and-context) are achieved. Some popular zkp types that are actually used in production systems include:
 
 - Bulletproofs 
     - a zero-knowledge argument of knowledge that proves that a secret value lies within a given range 
@@ -48,17 +50,19 @@ of your problem. Different zkp types use completely different underlying mathema
     - requires a "trusted setup" ceremony
     - proofs sizes are decoupled from the size of the computational circuit (thus the succinct discriptor)
 
+There are many others (like ring signatures) but that is enough for our purposes.
+
 ### zkSNARKs
 
 This crash course will specifically focus on zkSNARKs, and more specifically zkSNARKS that leverage the *Groth16* proof system. There are
-other proof systems with funny sounding names (like PLONK, and FFLONK), but the Circom examples we will doing will utilize the elliptic curve 
-pairing theorems as developed in the [Groth16 paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6d0e4b4d47afea119770b0386c94bcf277881a86). 
+other proof systems for zkSNARKs with funny sounding names (like PLONK, and FFLONK), but the Circom examples we will doing will utilize 
+the elliptic curve pairing theorems as developed in the [Groth16 paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6d0e4b4d47afea119770b0386c94bcf277881a86). 
 
 The lifecycle of a zkSNARK app in practice is something like this:
 
 1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit is a secret, its part of your witness set.
-2. Write this computation as an algebraic circuit (we'll use circom language to do this)
-3. Compile the circuit into a Rank 1 Constrain System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit
+2. Write this computation as an algebraic circuit (we'll use circom language to do this).
+3. Compile the circuit into a Rank 1 Constraint System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit.
 4. Perform what is called a **trused setup ceremony** which itself has 2 phases, one of which is circuit dependent (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this), to produce some *magic numbers* that are referred to in the literature as a *common reference string*. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string, so the trusted setup ceremony is a big deal for zkSTARK applications. 
 5. Using your proving circuit from part 3 and your magic numbers created from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
 6. Using the verifying proof and the same magic numbers from part 4 that you used in part 5, verify the validity of the proof that was generated in 
@@ -148,5 +152,11 @@ snarkjs groth16 prove multiplier2_0001.zkey witness.wtns proof.json public.json
 ```
 
 # Verify Proof (try changing something in proof.json so that the proof doesn't verify)
+
+```
 snarkjs groth16 verify verification_key.json public.json proof.json
 ```
+
+Proofs generated for zkSNARKS can also be verified on smart contract platforms like Ethereum. The Ethereum Virtual Machine introduced special routines
+(EIP196 and EIP197) in an attempt to make zkSNARK proof verification as efficient (and thus cheap) as possible. This is what makes token mixers like
+Tornado Cash feasible to implement and use on the Etheruem blockchain.
