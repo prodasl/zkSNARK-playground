@@ -1,6 +1,6 @@
 # Practical crash course in zkSNARKS for devs in hurry
 
-I'm making this repo to serve as a teaching aid for a crash course to practical usage of zero-knowledge proofs for developers in a hurry. 
+I'm making this repo to serve as a teaching aid for a crash course to practical usage of zkSNARKS for developers in a hurry. 
 Specifically, I'm basing the tutorial off of the [circom](https://github.com/iden3/circom) zkp circuit compiler and the 
 [snarkjs](https://github.com/iden3/snarkjs) proving/verifying library. The repository comes with a 
 Dockerfile that is fully self-contained with all dependencies necessary to perform the numerical experiments discussed here.  
@@ -44,28 +44,28 @@ of your problem. Different zkp types use completely different underlying mathema
     - stands for zero-knowledge scalable transparent argument of knowledge
     - doesn't require a trusted setup ceremony 
     - proof sizes are proportional to the size of the computational circuit
-- zkSNARKs 
+- zkSNARKs (what we're doing here)
     - stands for zero-knowledge succinct non-interactive argument of knowledge
     - allows a prover to prove that they correctly performed a series of calculations defined by an algebraic cuicuit
     - requires a "trusted setup" ceremony
     - proofs sizes are decoupled from the size of the computational circuit (thus the succinct discriptor)
 
-There are many others (like ring signatures) but that is enough for our purposes.
+There are many other types (like ring signatures) but that is enough for our purposes.
 
 ### zkSNARKs
 
-This crash course will specifically focus on zkSNARKs, and more specifically zkSNARKS that leverage the *Groth16* proof system. There are
-other proof systems for zkSNARKs with funny sounding names (like PLONK, and FFLONK), but the Circom examples we will doing will utilize 
+This crash course will focus on zkSNARKs, and more specifically zkSNARKS that leverage the *Groth16* proof system. There are
+other proof systems for zkSNARKs with funny sounding names (like PLONK, and FFLONK), but the Circom examples we will be working through will utilize 
 the elliptic curve pairing theorems as developed in the [Groth16 paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=6d0e4b4d47afea119770b0386c94bcf277881a86). 
 
 The lifecycle of a zkSNARK app in practice is something like this:
 
-1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit is a secret, its part of your witness set.
-2. Write this computation as an algebraic circuit (we'll use circom language to do this).
+1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the zk literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit is a secret, its part of your witness set. You must also determine what (if any) public inputs feed into your computation (like the root node of a Merkle tree or some other kind of public committment thats easily accessible by all parties). 
+2. Write this computation as an algebraic circuit (we'll use [circom language](https://docs.circom.io/circom-language/signals/) to do this). This actually isn't too hard but it's not trivial either (at least for interesting usecases). 
 3. Compile the circuit into a Rank 1 Constraint System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit.
-4. Perform what is called a **trused setup ceremony** to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to contruct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using has 2 phases to the trusted setup, one phase that is completely independent of the circuit you will be using, and another phase that depends on the circuit you develped and compiled in parts 1-3 earlier. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string, so the trusted setup ceremony is a big deal for zkSTARK applications. 
-5. Using your proving circuit from part 3 and your circuit's proving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. 
-6. Using the verifying proof and the circuit's verification key from part 4, verify the validity of the proof that was generated in part 5.
+4. Perform what is called a **trused setup ceremony** (you'll also see if called the Powers of Tau) to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to contruct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using requires 2 phases to the trusted setup, one phase that is completely independent of any particular circuit, and another phase that specifically depends on the circuit you develped and compiled in parts 1-3 earlier. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string and the disposal of its associated [*toxic waste*](https://zkproof.org/2021/06/30/setup-ceremonies/#:~:text=Second%2C%20zkSNARKs%20rely,forge%20fraudulent%20proofs.), so the trusted setup ceremony is a big deal for zkSTARK applications. If this *toxic waste* isn't disposed of properly, fraudulent proofs can be created (this is why multi-party compute protocols have been developed for trusted ceremonies to mitigate this risk). 
+5. As the prover, using your compiled circuit, public inputs, the witness from parts 2 and 3, and the application's proving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. Send the proof to the verifier through an appropriate channel. 
+6. As the verifier, using the verification key from part 4 and the public inputs to the computation defined in part 1, verify the validity of the proof that was generated in part 5.
 
 Technically the trusted setup ceremony could be done first (at least phase 1 could), and in fact, you can pull the Powers of Tau artifacts from 
 previous successfull ceremonies from online sources like https://www.trusted-setup-pse.org. Just make sure the artifacts are compatible with 
@@ -73,9 +73,9 @@ the circuit library you're using in your application.
 
 > **Note**<br>
 As stated in part 4, the Groth16 proof system has a two phase trusted setup, with the second stage being circuit dependent. Other proof systems like
-PLONK and FFLONK do not require this second phase. So why are we using a more complicated proof system? This is because Groth16 is more computationally
+PLONK and FFLONK do not require this second phase. So why are we making our life harder? This is because Groth16 is substantially more computationally
 efficient for creating and verifying proofs once you've completed the trusted setup. If your application is using the same circuit over and over again
-(which it probably will), then Groth16 is your best option for a proof sytem at the moment. 
+(which it probably will), then Groth16 is your best option for a proof sytem at the moment, particularly if proofs need to be generated on a mobile device or in the browser. 
 
 ## Part 1: Setting up your Docker environment
 
