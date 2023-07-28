@@ -62,7 +62,7 @@ The lifecycle of a zkSNARK app in practice is something like this:
 
 1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the zk literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit is a secret, its part of your witness set. You must also determine what (if any) public inputs feed into your computation (like the root node of a Merkle tree or some other kind of public committment thats easily accessible by all parties). 
 2. Write this computation as an algebraic circuit (we'll use [circom language](https://docs.circom.io/circom-language/signals/) to do this). This actually isn't too hard but it's not trivial either (at least for interesting usecases). 
-3. Compile the circuit into a Rank 1 Constraint System (R1CS) which itself is converted (via the proof system) into a Quadratic Algebraic Program (QAP) and eventually a proving and verifying curcuit.
+3. Compile the circuit into a [Rank 1 Constraint System](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs) (R1CS) which itself is converted (via the proof system) into a [Quadratic Algebraic Program](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/qap) (QAP) and eventually a proving and verifying curcuit.
 4. Perform what is called a **trused setup ceremony** (you'll also see if called the Powers of Tau) to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to contruct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using requires 2 phases to the trusted setup, one phase that is completely independent of any particular circuit, and another phase that specifically depends on the circuit you develped and compiled in parts 1-3 earlier. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string and the disposal of its associated [*toxic waste*](https://zkproof.org/2021/06/30/setup-ceremonies/#:~:text=Second%2C%20zkSNARKs%20rely,forge%20fraudulent%20proofs.), so the trusted setup ceremony is a big deal for zkSTARK applications. If this *toxic waste* isn't disposed of properly, fraudulent proofs can be created (this is why multi-party compute protocols have been developed for trusted ceremonies to mitigate this risk). 
 5. As the prover, using your compiled circuit, public inputs, the witness from parts 2 and 3, and the application's proving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. Send the proof to the verifier through an appropriate channel. 
 6. As the verifier, using the verification key from part 4 and the public inputs to the computation defined in part 1, verify the validity of the proof that was generated in part 5.
@@ -106,24 +106,27 @@ Now you're all set up to start using Circom and snarkjs.
 We're going to start with a boringly simple problem that [multiplies two numbers](/examples/multiplier2/multiplier2.circom) together and proves we did it right. If you wanted to do something like this in practice, you'd probably want to publish a hashed commitment of the two numbers your are multiplying together so that your proof is a little more usefull. That way the prover would know you multiplied the numbers that you committed to at a certain time stamp. But this first example is just to go through the motions. 
 
 In order to compile the circuit, we need:
-1. an input file in json format (this will contain the two secret numbers we want to multiply together)
+1. an input file in json format that contains all the input data (both public and private) that your calculation requires
 2. the circom compiler (already built for you in the container environment)
 
 ```
 cd /examples/multiplier2
-circom multiplier2.circom --wasm # compile the circuit into R1CS and output wasm executable needed to compute your witness.
-node ./multiplier2_js/generate_witness.js ./multiplier2_js/multiplier2.wasm input.json witness.wtns # run the compiled circuit against your input
+# compile the circuit into R1CS and output wasm executable needed to compute your witness later
+# output some debugging symbols you can use to explore the R1CS file
+circom multiplier2.circom --r1cs --wasm --sym 
 ```
 
-The first command produced a [`.wasm`](https://webassembly.org/) file that can run in the browser (notice how we used a `node` runtime to 
-compute the witness). The `.wasm` file is your compiled circuit and is used, along with an input file, to generate a witness file for your 
+The compilation command produced a [`.wasm`](https://webassembly.org/) file that can run in the browser (notice how we used a `node` runtime to 
+compute the witness). The `.wasm` file is your fully compiled circuit and is used, along with an variable input file, to generate a witness file for your 
 specific circuit.
 
-So in practice you'd want to host the `.wasm` file somewhere such that anyone who wants to be a verifier can retrieve it so that they can compute a witness from their own private data. 
+So, in practice the `.wasm` file will be a dependency of your client-side application. It will run on your end user's device and it will be called
+every time a proof needs to be generated (which could be often). 
 
 ## Part 3: Perform the trusted setup ceremony
 
-Now that your circuit is compiled, its time to generate the common reference string (aka, magic numbers). The first phase is often called the [Powers of Tau](https://medium.com/coinmonks/announcing-the-perpetual-powers-of-tau-ceremony-to-benefit-all-zk-snark-projects-c3da86af8377) and is only ever done once; it has no dependency on the computational graph of your circuit. 
+Now that your circuit is compiled and you have it in the form of a R1CS, its time to generate the common reference string (aka, magic numbers). 
+The first phase is often called the [Powers of Tau](https://medium.com/coinmonks/announcing-the-perpetual-powers-of-tau-ceremony-to-benefit-all-zk-snark-projects-c3da86af8377) and is only ever done once; it has no dependency on the computational graph of your circuit. 
 
 ```
 snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
@@ -131,7 +134,7 @@ snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First con
 snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau -v # create CRS with all participants contributions
 ```
 
-The second phase of depends on your specific circuit (not the input, but the computational graph). The quantity of magic numbers required to construct
+The second phase of depends on your specific circuit, specifically its R1CS. The quantity of magic numbers required to construct
 a zkSNARK is proportional to the size of your circuit, so if you change the computation, you need to redo phase 2 of the trusted setup. 
 
 ```
@@ -143,17 +146,26 @@ snarkjs zkey export verificationkey multiplier2_0001.zkey verification_key.json 
 In practice, if your application is using proving the same kind of statement over and over again with different private inputs (this will most likely be the case), then both phase I and II need only be done a single time before you officially launch your application into production. If you have a situation
 where you don't know the circuits ahead of time, you'll need to run phase II once for each new circuit introduced. 
 
-
-
 ### Part 4: Generate a Proof
 
+Now that we have compiled our circuit and successfully completed the trusted setup ceremony, a prover has everything it needs to start generating proofs.
+
+First, use the `.wasm` file you compiled along with an input file containing all the public and private inputs to output a special witness file. 
+
+Then, use the publicly available proving key from the trusted setup along with the witness to output a json file containing your proof as well 
+as a separate file that contains just the public information that the verifier will need. 
+
 ```
+# this first step will compute a special binary-format witness file
+node ./multiplier2_js/generate_witness.js ./multiplier2_js/multiplier2.wasm input.json witness.wtns # run the compiled circuit against your input
 # your outputs here are proof.json and public.json
 # they need to be communicated to the verifier 
 snarkjs groth16 prove multiplier2_0001.zkey witness.wtns proof.json public.json
 ```
 
-# Verify Proof (try changing something in proof.json so that the proof doesn't verify)
+# Part 5: Verify the Proof
+
+Now that the proof and public inputs have been delivered to the verifier, use the publicly available verification key to verify their contents:
 
 ```
 snarkjs groth16 verify verification_key.json public.json proof.json
@@ -162,3 +174,6 @@ snarkjs groth16 verify verification_key.json public.json proof.json
 Proofs generated for zkSNARKS can also be verified on smart contract platforms like Ethereum. The Ethereum Virtual Machine introduced special routines
 (EIP196 and EIP197) in an attempt to make zkSNARK proof verification as efficient (and thus cheap) as possible. This is what makes token mixers like
 Tornado Cash feasible to implement and use on the Etheruem blockchain.
+
+> **Note**<br>
+Try changing something small in proof.json file so that the proof doesn't verify.
