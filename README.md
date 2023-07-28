@@ -64,7 +64,7 @@ The lifecycle of a zkSNARK app in practice is something like this:
 2. Write this computation as an algebraic circuit (we'll use [circom language](https://docs.circom.io/circom-language/signals/) to do this). This actually isn't too hard but it's not trivial either (at least for interesting usecases). 
 3. Compile the circuit into a [Rank 1 Constraint System](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs) (R1CS) which itself is converted (via the proof system) into a [Quadratic Algebraic Program](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/qap) (QAP) and eventually a proving and verifying curcuit.
 4. Perform what is called a **trused setup ceremony** (you'll also see if called the Powers of Tau) to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to contruct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using requires 2 phases to the trusted setup, one phase that is completely independent of any particular circuit, and another phase that specifically depends on the circuit you develped and compiled in parts 1-3 earlier. Constructing and verifing the proof in zero-knowledge hinges on the proper construction of the common reference string and the disposal of its associated [*toxic waste*](https://zkproof.org/2021/06/30/setup-ceremonies/#:~:text=Second%2C%20zkSNARKs%20rely,forge%20fraudulent%20proofs.), so the trusted setup ceremony is a big deal for zkSTARK applications. If this *toxic waste* isn't disposed of properly, fraudulent proofs can be created (this is why multi-party compute protocols have been developed for trusted ceremonies to mitigate this risk). 
-5. As the prover, using your compiled circuit, public inputs, the witness from parts 2 and 3, and the application's proving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. Send the proof to the verifier through an appropriate channel. 
+5. As the prover, using your compiled circuit, public and private inputs defined in part 1, and the application's proving key from the trusted setup ceremony in part 4, generate a proof that you faithfully carried out the calculations you defined in part 1. Send the proof to the verifier through an appropriate channel. 
 6. As the verifier, using the verification key from part 4 and the public inputs to the computation defined in part 1, verify the validity of the proof that was generated in part 5.
 
 Technically the trusted setup ceremony could be done first (at least phase 1 could), and in fact, you can pull the Powers of Tau artifacts from 
@@ -146,7 +146,7 @@ snarkjs zkey export verificationkey multiplier2_0001.zkey verification_key.json 
 In practice, if your application is using proving the same kind of statement over and over again with different private inputs (this will most likely be the case), then both phase I and II need only be done a single time before you officially launch your application into production. If you have a situation
 where you don't know the circuits ahead of time, you'll need to run phase II once for each new circuit introduced. 
 
-### Part 4: Generate a Proof
+## Part 4: Generate a Proof
 
 Now that we have compiled our circuit and successfully completed the trusted setup ceremony, a prover has everything it needs to start generating proofs.
 
@@ -163,7 +163,7 @@ node ./multiplier2_js/generate_witness.js ./multiplier2_js/multiplier2.wasm inpu
 snarkjs groth16 prove multiplier2_0001.zkey witness.wtns proof.json public.json
 ```
 
-# Part 5: Verify the Proof
+## Part 5: Verify the Proof
 
 Now that the proof and public inputs have been delivered to the verifier, use the publicly available verification key to verify their contents:
 
