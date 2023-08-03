@@ -77,6 +77,14 @@ PLONK and FFLONK do not require this second phase. So why are we making our life
 efficient for creating and verifying proofs once you've completed the trusted setup. If your application is using the same circuit over and over again
 (which it probably will), then Groth16 is your best option for a proof sytem at the moment, particularly if proofs need to be generated on a mobile device or in the browser. 
 
+### A Key Take Away for zkSNARKs
+
+Something you need to make sure you understand about zkSNARKs is that they essentially represent a programming model. If you can wrap your head around this programming model, you can effectively leverage zkSNARKs in practical applications. What I mean by this is that a zkSNARK requires that a computation be written as an algebraic/boolean circuit (think computational graph) in order for a zk proof to be algorithmically generated. 
+
+If you come from a deep learning background, you should be familiar with automatic differentiation (AD). AD enables **exact** derivatives to be computed of any function implemented in code on a digital computer. How? Because any mathematical approximation written on a digital computer must be composed of elementary operations (i.e. +, -, *, /, **) and taking the derivative of a function composed of these operations merely requires repeated application of the chain rule to simple functions with analytic derivates. 
+
+A similar concept is at play here with zkSNARKs. Many useful computations can be expressed as a graph of elementary operations (in this case +, *, and boolean operations) applied to elements of a (really big) finite field (as an aside, you should understand that regular old division that you perform with real or rational numbers doesn't exist in finite fields). Statements created with these operators can be algorithmically turned into polynomial relations with homomorphic encryption properties. If you can figure out how to write your problem as an algebraic/boolean circuite, then you have a zkSNARK. 
+
 ## Part 1: Setting up your Docker environment
 
 This tutorial assumes you have Docker installed on your machine. The root folder of this repo contains a [Dockerfile](/Dockerfile)
