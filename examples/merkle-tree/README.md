@@ -34,7 +34,7 @@ in the working directory.
 
 Now you're all set up to start using Circom and snarkjs.
 
-## Part 2: Compile a simple multiplication circuit
+## Part 2: Compile the proof-of-membership circuit
 
 This example is actually pretty useful in practice. The circuit for proving [inclusion in a merkle tree](/examples/merkle-tree/tree.circom) is representative of the circuit complexity needed to do useful things. 
 
