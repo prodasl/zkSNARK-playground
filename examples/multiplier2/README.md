@@ -5,6 +5,8 @@ that creates an environment with Rust (needed for the [Circom](https://github.co
 
 First, build a docker image called `circom`:
 ```
+git clone https://github.com/TtheBC01/circom-playground.git
+cd circom-playground
 docker build -t circom .
 ```
 
