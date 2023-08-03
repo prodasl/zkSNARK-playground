@@ -36,15 +36,15 @@ Now you're all set up to start using Circom and snarkjs.
 
 ## Part 2: Compile a simple multiplication circuit
 
-We're going to start with a boringly simple problem that [multiplies two numbers](/examples/multiplier2/multiplier2.circom) together and proves we did it right. If you wanted to do something like this in practice, you'd probably want to publish a hashed commitment of the two numbers your are multiplying together so that your proof is a little more useful. That way the prover would know you multiplied the numbers that you committed to at a certain time stamp. But this first example is just to go through the motions. 
+This example is actually pretty useful in practice. The circuit for proving [inclusion in a merkle tree](/examples/merkle-tree/tree.circom) is representative of the circuit complexity needed to do useful things. 
 
-In order to compile the circuit, we need the circom compiler (already built for you in the container environment). 
+In order to compile the circuit, we need the circom compiler (already built for you in the container environment)
 
 ```
-cd /examples/multiplier2
+cd /examples/merkle-tree
 # compile the circuit into R1CS and output wasm executable needed to compute your witness later
 # output some debugging symbols you can use to explore the R1CS file
-circom multiplier2.circom --r1cs --wasm --sym 
+circom tree.circom --r1cs --wasm --sym 
 ```
 
 The compilation command produced a [`.wasm`](https://webassembly.org/) file that can run in the browser (notice how we used a `node` runtime to 
