@@ -2,4 +2,4 @@
 
 ## zkSNARK Crashcourse
 * [Introduction](README.md)
-* [Super Simple Circuit](/examples/multiplier2/GETTINGSTARTED.md)
+* [Super Simple Circuit](/examples/multiplier2/README.md)
