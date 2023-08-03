@@ -50,10 +50,10 @@ of your problem. Different zkp types use completely different underlying mathema
 - [zkSNARKs](https://eprint.iacr.org/2011/443.pdf) (what we're doing here)
     - stands for zero-knowledge succinct non-interactive argument of knowledge
     - allows a prover to prove that they correctly performed a series of calculations defined by an algebraic/arithmetic circuit
-    - requires a "trusted setup" ceremony
+    - requires a "trusted setup" ceremony (page 1, 3rd paragraph of the linked paper)
     - security model is based on discrete logarithm of elliptic curves (thus **not** quantum resistant)
     - proofs sizes are decoupled from the size of the computational circuit (thus the succinct descriptor)
-    - inherently non-interactive (proofs can be checked by a smart contract)
+    - fairly mature technology with lots of software implementations and production deployments 
 
 There are many other types (like ring signatures) but that is enough for our purposes.
 
@@ -65,7 +65,7 @@ the elliptic curve pairing theorems as developed in the [Groth16 paper](https://
 
 The lifecycle of a zkSNARK app in practice is something like this:
 
-1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the zk literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit is a secret, its part of your witness set. You must also determine what (if any) public inputs feed into your computation (like the root node of a Merkle tree or some other kind of public commitment thats easily accessible by all parties). 
+1. Define exactly the specific computation you need to carry out (like confirming that a leaf is a member of a Merkle tree). This requires determining what variables in your calculation make up your *witness* (in the zk literature, a witness is just a fancy name for the information you want to keep private). If one of your inputs to your circuit needs to be kept a secret, its part of your witness set. You must also determine what public quantities are associated with your computation (like the root node of a Merkle tree or some other kind of public commitment thats easily accessible by all parties). 
 2. Write this computation as an algebraic circuit (we'll use [circom language](https://docs.circom.io/circom-language/signals/) to do this). This actually isn't too hard but it's not trivial either (at least for interesting use cases). 
 3. Compile the circuit into a [Rank 1 Constraint System](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/r1cs) (R1CS) which itself is converted (via the proof system) into a [Quadratic Algebraic Program](https://www.zeroknowledgeblog.com/index.php/the-pinocchio-protocol/qap) (QAP) and eventually a proving and verifying circuit.
 4. Perform what is called a **trusted setup ceremony** (you'll also see if called the Powers of Tau) to produce some *magic numbers* that are referred to in the literature as a *common reference string* (see this [blog](https://medium.com/@VitalikButerin/zk-snarks-under-the-hood-b33151a013f6) from Vitalik Buterin to understand why we do this). The common reference string is public information and is used to construct a proof key and a verification key (also public information) that are used by any participants in your zkSNARK app. The Groth16 proof system we will be using requires 2 phases to the trusted setup, one phase that is completely independent of any particular circuit, and another phase that specifically depends on the circuit you developed and compiled in parts 1-3 earlier. Constructing and verifying the proof in zero-knowledge hinges on the proper construction of the common reference string and the disposal of its associated [*toxic waste*](https://zkproof.org/2021/06/30/setup-ceremonies/#:~:text=Second%2C%20zkSNARKs%20rely,forge%20fraudulent%20proofs.), so the trusted setup ceremony is a big deal for zkSTARK applications. If this *toxic waste* isn't disposed of properly, fraudulent proofs can be created (this is why multi-party compute protocols have been developed for trusted ceremonies to mitigate this risk). 
