@@ -108,4 +108,4 @@ Proofs generated for zkSNARKS can also be verified on smart contract platforms l
 Tornado Cash feasible to implement and use on the Etheruem blockchain.
 
 > **Note**<br>
-Try changing something small in proof.json file so that the proof doesn't verify.
+Try changing something small in `proof.json` or `public.json` file so that the proof doesn't verify.
