@@ -3,19 +3,29 @@
 This tutorial assumes you have Docker installed on your machine. The root folder of this repo contains a [Dockerfile](/Dockerfile)
 that creates an environment with Rust (needed for the [Circom](https://github.com/iden3/circom) compiler) and Node (needed for [snarkjs](https://www.npmjs.com/package/snarkjs)). 
 
-First, build a docker image called `circom`:
+First, build a docker image called `circom-playground`:
 ```
 git clone https://github.com/TtheBC01/circom-playground.git
 cd circom-playground
-docker build -t circom .
+docker build -t circom-playground .
+```
+
+or pull the pre-built docker image if you don't want to wait for the circom compiler to build:
+
+```
+docker pull tthebc01/circom-playground
 ```
 
 Next, fire up an interactive environment with this new image:
 ```
-docker run -it --rm --entrypoint bash -v /home/todd/code/circom-playground/:/root/circuits circom
+docker run -it --rm --entrypoint bash -v /home/todd/code/circom-playground/:/root/circuits circom-playground
 ```
 
-this will start a bash terminal in the docker environment. 
+this will start a bash terminal in the docker environment. Then change directories into your mounted volume:
+
+```
+cd circuits
+```
 
 > **Warning**<br>
 The above command uses the `-v` flag to mount the repository into the container environment so you can edit your code without stopping, rebuilding, then 
@@ -48,8 +58,7 @@ every time a proof needs to be generated (which could be often).
 
 ## Part 3: Perform the trusted setup ceremony
 
-Now that your circuit is compiled and you have it in the form of a R1CS, its time to generate the common reference string (aka, magic numbers). 
-The first phase is often called the [Powers of Tau](https://medium.com/coinmonks/announcing-the-perpetual-powers-of-tau-ceremony-to-benefit-all-zk-snark-projects-c3da86af8377) and is only ever done once; it has no dependency on the computational graph of your circuit. 
+Now that your circuit is compiled and you have it in the form of a R1CS, its time to generate the common reference string (aka, magic numbers). We are going to use snarkjs for this. The first phase is often called the [Powers of Tau](https://medium.com/coinmonks/announcing-the-perpetual-powers-of-tau-ceremony-to-benefit-all-zk-snark-projects-c3da86af8377) and is only ever done once; it has no dependency on the computational graph of your circuit. 
 
 ```
 snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
@@ -66,8 +75,8 @@ snarkjs zkey contribute multiplier2_0000.zkey multiplier2_0001.zkey --name="1st 
 snarkjs zkey export verificationkey multiplier2_0001.zkey verification_key.json # export your key to a json file for later
 ```
 
-In practice, if your application is using proving the same kind of statement over and over again with different private inputs (this will most likely be the case), then both phase I and II need only be done a single time before you officially launch your application into production. If you have a situation
-where you don't know the circuits ahead of time, you'll need to run phase II once for each new circuit introduced. 
+In practice, if your application is proving the same kind of statement over and over again with different private inputs (this will most likely be the case), then both phase I and II need only be done a single time before you officially launch your application into production. If you have a situation
+where you don't know the circuits ahead of time, you'll need to run phase II once for each new circuit introduced (because we are using Groth16). 
 
 ## Part 4: Generate a Proof
 
