@@ -9,7 +9,7 @@ Dockerfile that is fully self-contained with all dependencies necessary to perfo
 
 Zero-knowledge proofs (zkp's) allow a "prover" to convince a "verifier" that a statement is true without letting the cat out of the bag as 
 to why the statement is true. The first thing to remember is that in a zkp setting, there is **always** a *prover* and a *verifier*. If you are 
-trying to leverage zkps in your application, you must identify the user persona's that fall under these categories (example: if you're using zkp's for
+trying to leverage zkps in your product or application, you must identify which user persona or actor falls under which category (example: if you're using zkp's for
 authentication, then the end user is the prover and the backend of your app is the verifier). 
 
 Zero-knowledge proofs (much like the field of machine learning), are not a monolithic concept or single algorithm where one method works
@@ -79,7 +79,7 @@ efficient for creating and verifying proofs once you've completed the trusted se
 
 ### A Key Take Away for zkSNARKs
 
-Something you need to make sure you understand about zkSNARKs is that they essentially represent a programming model. If you can wrap your head around this programming model, you can effectively leverage zkSNARKs in practical applications. What I mean by this is that a zkSNARK requires that a computation be written as an algebraic/boolean circuit (think computational graph) in order for a zk proof to be algorithmically generated. 
+Something you need to make sure you understand about zkSNARKs as someone who is trying to use them for engineering or product purposes is that they essentially represent a programming model. If you can wrap your head around this programming model, you can effectively leverage zkSNARKs in practical applications. What I mean by this is that a zkSNARK requires that a computation be written as an algebraic/boolean circuit (think computational graph) in order for a zk proof to be algorithmically generated. 
 
 If you come from a deep learning background, you should be familiar with automatic differentiation (AD). AD enables **exact** derivatives to be computed of any function implemented in code on a digital computer. How? Because any mathematical approximation written on a digital computer must be composed of elementary operations (i.e. +, -, *, /, **) and taking the derivative of a function composed of these operations merely requires repeated application of the chain rule to simple functions with analytic derivatives. 
 
