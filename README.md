@@ -37,18 +37,23 @@ Typically, you want to choose the simplest modeling method that is capable of at
 You face a similar choice in zkp land as well. You need to choose an appropriate zkp *type* that satisfies the information constraints and requirements
 of your problem. Different zkp types use completely different underlying mathematical formalisms to ensure the three properties discussed in [preliminaries and context](#preliminaries-and-context) are achieved. Some popular zkp types that are actually used in production systems include:
 
-- Bulletproofs 
+- [Bulletproofs ](https://eprint.iacr.org/2017/1066.pdf)
     - a zero-knowledge argument of knowledge that proves that a secret value lies within a given range 
     - typically used to prove that a committed value is greater than 0
-- zkSTARKs 
+- [zkSTARKs](https://starkware.co/wp-content/uploads/2022/05/STARK-paper.pdf)
     - stands for zero-knowledge scalable transparent argument of knowledge
-    - doesn't require a trusted setup ceremony 
-    - proof sizes are proportional to the size of the computational circuit
-- zkSNARKs (what we're doing here)
-    - stands for zero-knowledge succinct non-interactive argument of knowledge
     - allows a prover to prove that they correctly performed a series of calculations defined by an algebraic circuit
+    - doesn't require a trusted setup ceremony 
+    - security model is based on 1-way hashing functions (not elliptic curves over finite fields, thus quantum resistance)
+    - proofs sizes are decoupled from the size of the computational circuit (thus the scalable descriptor)
+    - very new technology, not yet mature enough for widespread production applications
+- [zkSNARKs](https://eprint.iacr.org/2011/443.pdf) (what we're doing here)
+    - stands for zero-knowledge succinct non-interactive argument of knowledge
+    - allows a prover to prove that they correctly performed a series of calculations defined by an algebraic/arithmetic circuit
     - requires a "trusted setup" ceremony
+    - security model is based on discrete logarithm of elliptic curves (thus **not** quantum resistant)
     - proofs sizes are decoupled from the size of the computational circuit (thus the succinct descriptor)
+    - inherently non-interactive (proofs can be checked by a smart contract)
 
 There are many other types (like ring signatures) but that is enough for our purposes.
 
