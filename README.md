@@ -73,7 +73,7 @@ The lifecycle of a zkSNARK app in practice is something like this:
 6. As the verifier, using the verification key from part 4 and the public inputs to the computation defined in part 1, verify the validity of the proof that was generated in part 5.
 
 Technically the trusted setup ceremony could be done first (at least phase 1 could), and in fact, you can pull the Powers of Tau artifacts from 
-previous successful ceremonies from online sources like https://www.trusted-setup-pse.org. Just make sure the artifacts are compatible with 
+previous successful ceremonies from online sources like [https://www.trusted-setup-pse.org](https://www.trusted-setup-pse.org). Just make sure the artifacts are compatible with 
 the circuit library you're using in your application.
 
 > **Note**<br>

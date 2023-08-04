@@ -54,6 +54,18 @@ specific circuit.
 So, in practice the `.wasm` file will be a dependency of your client-side application. It will run on your end user's device and it will be called
 every time a proof needs to be generated (which could be often). 
 
+Inspect the R1CS file created by the compilation step:
+
+```
+snarkjs r1cs info multiplier2.r1cs
+```
+
+Print the constraints:
+
+```
+snarkjs r1cs print multiplier2.r1cs multiplier2.sym
+```
+
 ## Part 3: Perform the trusted setup ceremony
 
 Now that your circuit is compiled and you have it in the form of a R1CS, its time to generate the common reference string (aka, magic numbers). We are going to use snarkjs for this. The first phase is often called the [Powers of Tau](https://medium.com/coinmonks/announcing-the-perpetual-powers-of-tau-ceremony-to-benefit-all-zk-snark-projects-c3da86af8377) and is only ever done once; it has no dependency on the computational graph of your circuit. 
