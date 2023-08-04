@@ -36,7 +36,7 @@ Now you're all set up to start using Circom and snarkjs.
 
 ## Part 2: Compile the proof-of-membership circuit
 
-This example is actually pretty useful in practice. The circuit for proving [inclusion in a merkle tree](/examples/merkle-tree/tree.circom) is representative of the circuit complexity needed to do useful things. 
+This example is actually pretty useful in practice. The circuit for proving [inclusion in a merkle tree](/examples/merkle-tree/tree.circom) is representative of the circuit complexity needed to do useful things. We'll be borrowing some circuit templates from [circomlib](https://github.com/iden3/circomlib), specifically circuits for computing the [poseidon hash](https://www.poseidon-hash.info/) and an input mixer circuit. 
 
 In order to compile the circuit, we need the circom compiler (already built for you in the container environment)
 
