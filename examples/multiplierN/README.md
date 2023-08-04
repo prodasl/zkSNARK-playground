@@ -36,15 +36,15 @@ Now you're all set up to start using Circom and snarkjs.
 
 ## Part 2: Compile a simple multiplication circuit
 
-We're going to start with a boringly simple problem that [multiplies two numbers](/examples/multiplier2/multiplier2.circom) together and proves we did it right. If you wanted to do something like this in practice, you'd probably want to publish a hashed commitment of the two numbers your are multiplying together so that your proof is a little more useful. That way the prover would know you multiplied the numbers that you committed to at a certain time stamp. But this first example is just to go through the motions. 
+We're going to start with a boringly simple problem that [multiplies N numbers](/examples/multiplierN/multiplierN.circom) together and proves we did it right. If you wanted to do something like this in practice, you'd probably want to publish a hashed commitment of the two numbers your are multiplying together so that your proof is a little more useful. That way the prover would know you multiplied the numbers that you committed to at a certain time stamp. But this first example is just to go through the motions. 
 
 In order to compile the circuit, we need the circom compiler (already built for you in the container environment). 
 
 ```
-cd /examples/multiplier2
+cd /examples/multiplierN
 # compile the circuit into R1CS and output wasm executable needed to compute your witness later
 # output some debugging symbols you can use to explore the R1CS file
-circom multiplier2.circom --r1cs --wasm --sym 
+circom multiplierN.circom --r1cs --wasm --sym 
 ```
 
 The compilation command produced a [`.wasm`](https://webassembly.org/) file that can run in the browser (notice how we used a `node` runtime to 
@@ -57,13 +57,13 @@ every time a proof needs to be generated (which could be often).
 Inspect the R1CS file created by the compilation step:
 
 ```
-snarkjs r1cs info multiplier2.r1cs
+snarkjs r1cs info multiplierN.r1cs
 ```
 
 Print the constraints:
 
 ```
-snarkjs r1cs print multiplier2.r1cs multiplier2.sym
+snarkjs r1cs print multiplierN.r1cs multiplierN.sym
 ```
 
 ## Part 3: Perform the trusted setup ceremony
@@ -80,9 +80,9 @@ The second phase of depends on your specific circuit, specifically its R1CS. The
 a zkSNARK is proportional to the size of your circuit, so if you change the computation, you need to redo phase 2 of the trusted setup. 
 
 ```
-snarkjs groth16 setup multiplier2.r1cs pot12_final.ptau multiplier2_0000.zkey # create a compatible key
-snarkjs zkey contribute multiplier2_0000.zkey multiplier2_0001.zkey --name="1st Contributor Name" -v # use the key to contribute your own randomness
-snarkjs zkey export verificationkey multiplier2_0001.zkey verification_key.json # export your key to a json file for later
+snarkjs groth16 setup multiplierN.r1cs pot12_final.ptau multiplierN_0000.zkey # create a compatible key
+snarkjs zkey contribute multiplierN_0000.zkey multiplierN_0001.zkey --name="1st Contributor Name" -v # use the key to contribute your own randomness
+snarkjs zkey export verificationkey multiplierN_0001.zkey verification_key.json # export your key to a json file for later
 ```
 
 In practice, if your application is proving the same kind of statement over and over again with different private inputs (this will most likely be the case), then both phase I and II need only be done a single time before you officially launch your application into production. If you have a situation
@@ -99,10 +99,10 @@ as a separate file that contains just the public information that the verifier w
 
 ```
 # this first step will compute a special binary-format witness file
-node ./multiplier2_js/generate_witness.js ./multiplier2_js/multiplier2.wasm input.json witness.wtns # run the compiled circuit against your input
+node ./multiplierN_js/generate_witness.js ./multiplierN_js/multiplierN.wasm input.json witness.wtns # run the compiled circuit against your input
 # your outputs here are proof.json and public.json
 # they need to be communicated to the verifier 
-snarkjs groth16 prove multiplier2_0001.zkey witness.wtns proof.json public.json
+snarkjs groth16 prove multiplierN_0001.zkey witness.wtns proof.json public.json
 ```
 
 ## Part 5: Verify the Proof
