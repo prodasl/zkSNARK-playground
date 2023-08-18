@@ -13,7 +13,7 @@ docker build -t circom-playground .
 or pull the pre-built docker image if you don't want to wait for the circom compiler to build:
 
 ```
-docker pull tthebc01/circom-playground
+docker pull tthebc01/zksnark-playground
 ```
 
 Next, fire up an interactive environment with this new image:
