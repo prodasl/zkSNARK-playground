@@ -9,16 +9,18 @@ docker pull tthebc01/zksnark-playground
 
 and run it like this:
 
+```sh
+docker run -it --rm --entrypoint bash -v /path/to/circom-playground:/root/playground tthebc01/zksnark-playground
 ```
-docker run -it --rm --entrypoint bash -v /path/to/circom-playground:/root/playground tthebc01/zksnark-playground```
 
 This will start a bash session in the playground environment. Next cd to the directory containing this example:
 
-```
+```sh
 cd /root/playground/examples/snickerdoodle-semaphore
 ```
 
-Once you are in the example folder called `snickerdoodle-semaphore`, you need to install dependencies and build the project:
+Once you are in the example folder called `snickerdoodle-semaphore`, you need to install 
+dependencies and build the project:
 
 ```sh
 npm install
@@ -45,6 +47,6 @@ The verification key can be extracted from the keypair object by calling `.verif
 
 If you've already run `npm run build`, you can run the example script like this:
 
-```
+```sh
 node run build/src/run_semaphore.js
 ```
