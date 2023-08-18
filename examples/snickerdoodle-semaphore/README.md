@@ -31,7 +31,7 @@ Now you are ready to experiment.
 
 ## Part 2: The Circuit
 
-The Semaphore circuit itself is contained in [`Semaphore.ts``](/examples/snickerdoodle-semaphore/src/Semaphore.ts). This file exports three things:
+The Semaphore circuit itself is contained in [`Semaphore.ts`](/examples/snickerdoodle-semaphore/src/Semaphore.ts). This file exports three things:
 
 1. A Merkle Tree Witness object called `MyMerkleWitness` that is configured for an arity of 16 (i.e. 2^16 possible leaves). This will be used to compute the secret membership path belonging to a prover.
 2. A special identity structure that takes an `identityNullifier` and an `identityTrapdoor`, both of which are random Field elements that must be kept secret. Taking the Poseidon hash of these two quantities and then hashing that value again results in a public identity commitment. 
